@@ -1,0 +1,14 @@
+{
+  "name": "drupal/telephone_plus",
+  "type": "drupal-module",
+  "description": "Telephone field plus operator and messengers",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/telephone_plus",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/telephone_plus",
+    "source": "http://cgit.drupalcode.org/telephone_plus"
+  },
+  "require": { }
+}
