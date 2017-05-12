@@ -7,11 +7,8 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Form\OptGroup;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\DataDefinition;
-use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\TypedData\OptionsProviderInterface;
 use Drupal\Core\Field\AllowedTagsXssTrait;
 
 /**
@@ -25,7 +22,7 @@ use Drupal\Core\Field\AllowedTagsXssTrait;
  *   default_formatter = "telephone_plus_formatter"
  * )
  */
-class TelephonePlus extends FieldItemBase implements OptionsProviderInterface{
+class TelephonePlus extends FieldItemBase{
   use AllowedTagsXssTrait;
   /**
    * {@inheritdoc}
@@ -33,7 +30,6 @@ class TelephonePlus extends FieldItemBase implements OptionsProviderInterface{
   public static function defaultStorageSettings() {
     return array(
       'allowed_operators' => array(),
-      'allowed_operators_function' => '',
     ) + parent::defaultStorageSettings();
   }
 
@@ -48,42 +44,6 @@ class TelephonePlus extends FieldItemBase implements OptionsProviderInterface{
 */
   public static function mainPropertyName() {
     return 'telephone';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getPossibleValues(AccountInterface $account = NULL) {
-    // Flatten options firstly, because Possible Options may contain group
-    // arrays.
-    $flatten_options = OptGroup::flattenOptions($this->getPossibleOptions($account));
-    return array_keys($flatten_options);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getPossibleOptions(AccountInterface $account = NULL) {
-    return $this->getSettableOptions($account);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSettableValues(AccountInterface $account = NULL) {
-    // Flatten options firstly, because Settable Options may contain group
-    // arrays.
-
-    $flatten_options = OptGroup::flattenOptions($this->getSettableOptions($account));
-    return array_keys($flatten_options);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSettableOptions(AccountInterface $account = NULL) {
-    $allowed_operators = telephone_plus_allowed_operators($this->getFieldDefinition()->getFieldStorageDefinition(), $this->getEntity());
-    return $allowed_operators;
   }
 
   /**
@@ -116,7 +76,7 @@ class TelephonePlus extends FieldItemBase implements OptionsProviderInterface{
     $description .= '<br/>' . t('The key is the stored value. The label will be used in displayed values and edit forms.');
     $description .= '<br/>' . t('The label is optional: if a line contains a single string, it will be used as key and label.');
     $description .= '</p>';
-    $description .= '<p>' . t('Allowed HTML tags in labels: @tags', array('@tags' => $this->displayAllowedTags())) . '</p>';
+//    $description .= '<p>' . t('Allowed HTML tags in labels: @tags', array('@tags' => $this->displayAllowedTags())) . '</p>';
     return $description;
   }
 
@@ -125,31 +85,14 @@ class TelephonePlus extends FieldItemBase implements OptionsProviderInterface{
    */
   public function storageSettingsForm(array &$form, FormStateInterface $form_state, $has_data) {
     $allowed_operators = $this->getSetting('allowed_operators');
-    $allowed_operators_function = $this->getSetting('allowed_operators_function');
     //TODO : Значение сохраняются в формате строки. Исправить хранение значений доступных операторов в массив
-   // dpm($allowed_operators, 'get set');
+  //  dpm($allowed_operators, 'get set');
    // dpm($this->allowedOperatorsString($allowed_operators) , 'def');
     $element['allowed_operators'] = array(
       '#type' => 'textarea',
       '#title' => t('Allowed values list'),
       '#default_value' => $allowed_operators,//$this->allowedOperatorsString($allowed_operators),
       '#rows' => 10,
-      '#access' => empty($allowed_operators_function),
-      '#element_validate' => array(array(get_class($this), 'validateAllowedValues')),
-      '#field_has_data' => $has_data,
-      '#field_name' => $this->getFieldDefinition()->getName(),
-      '#entity_type' => $this->getEntity()->getEntityTypeId(),
-      '#allowed_values' => $allowed_operators,
-    );
-
-    $element['allowed_operators']['#description'] = $this->allowedOperatorsDescription();
-
-    $element['allowed_operators_function'] = array(
-      '#type' => 'item',
-      '#title' => t('Allowed values list'),
-      '#markup' => t('The value of this field is being determined by the %function function and may not be changed.', array('%function' => $allowed_operators_function)),
-      '#access' => !empty($allowed_operators_function),
-      '#value' => $allowed_operators_function,
     );
 
     return $element;
