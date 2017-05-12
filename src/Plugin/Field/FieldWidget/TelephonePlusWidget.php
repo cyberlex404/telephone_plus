@@ -82,20 +82,21 @@ class TelephonePlusWidget extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $element = [];
 
+    //dpm($items[$delta]->telephone);
     $element['telephone'] = $element + array(
       '#type' => 'textfield',
-      '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
+      '#default_value' => isset($items[$delta]->telephone) ? $items[$delta]->telephone : NULL,
       '#size' => $this->getSetting('size'),
-      '#placeholder' => $this->getSetting('placeholder'),
-      '#maxlength' => $this->getFieldSetting('max_length'),
+      '#placeholder' => '+375 (29) 123-45-67',
+      '#maxlength' => 50,
     );
 
     $element['operator'] = array(
       '#type' => 'select',
       '#title' => t('Operator'),
       '#options' => $this->getOperators(),
-      '#empty_option' => 'no-operator',
-      '#empty_value' => t('Operator not set'),
+      '#empty_option' => t('None'),
+      '#empty_value' => 'none',
       '#default_value' => isset($items[$delta]->operator) ? $items[$delta]->operator : NULL,
     );
 
@@ -126,15 +127,14 @@ class TelephonePlusWidget extends WidgetBase {
    *   The array of options for the widget.
    */
   protected function getOperators() {
-    $operators = [
-      '_none' => t('None'),
-    ];
+    $operators = [];
     $string_operators = $this->getFieldSetting('allowed_operators');
     $lines = explode("\n", $string_operators);
     foreach ($lines as $line) {
       list($key, $value) = explode("|", $line);
       $operators[$key] = $value;
     }
+
     return $operators;
   }
 

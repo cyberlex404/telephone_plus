@@ -72,9 +72,28 @@ class TelephonePlusFormatter extends FormatterBase {
    *   The textual output generated.
    */
   protected function viewValue(FieldItemInterface $item) {
+    $line = '<i class="telico telico-op telico-' . $item->operator .'"></i>';
+    foreach (['whatsapp', 'viber', 'telegram'] as $param) {
+      if((bool)$item->$param == TRUE) {
+        $line .= '<i class="telico telico-' . $param .'"></i>';
+      }
+    }
+  //  dpm($line);
+    $markup['telephone'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'span',
+      '#value' => $item->telephone,
+      '#prefix' =>'<span class="telephone-icons">',
+      '#suffix' => $line . '</span>',
+      '#attributes' => [
+        'itemprop' => 'telephone',
+        'class' => ['telephone'],
+        'telephone' => $item->telephone,
+      ],
+    ];
     // The text value has no text format assigned to it, so the user input
     // should equal the output, including newlines.
-    return nl2br(Html::escape($item->value));
+    return render($markup); // nl2br(Html::escape($item->telephone));
   }
 
 }
